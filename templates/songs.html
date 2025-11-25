@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Все песни - LinguaTune{% endblock %}
+
+{% block content %}
+<h2>🎶 Все песни для изучения</h2>
+
+{% for song in songs %}
+<div class="song-card" {% if song.is_learned %}style="background: #e8f5e8;"{% endif %}>
+    <div class="song-title">
+        {{ song.title }}
+        {% if song.is_learned %} ✅{% endif %}
+    </div>
+    <div class="song-artist">Исполнитель: {{ song.artist }}</div>
+    <div>
+        <span class="language-badge">
+            {% if song.language == 'en' %}🇬🇧 Английский
+            {% elif song.language == 'es' %}🇪🇸 Испанский
+            {% elif song.language == 'fr' %}🇫🇷 Французский
+            {% elif song.language == 'de' %}🇩🇪 Немецкий
+            {% else %}{{ song.language }}{% endif %}
+        </span>
+        <span class="difficulty-{{ song.difficulty }}">
+            Уровень: 
+            {% if song.difficulty == 'beginner' %}Начальный
+            {% elif song.difficulty == 'intermediate' %}Средний
+            {% elif song.difficulty == 'advanced' %}Продвинутый
+            {% else %}{{ song.difficulty }}{% endif %}
+        </span>
+    </div>
+    <div style="margin-top: 10px;">
+        <strong>Текст:</strong><br>
+        {{ song.lyrics_original[:100] }}...
+    </div>
+    <div style="margin-top: 5px;">
+        <strong>Перевод:</strong><br>
+        {{ song.lyrics_translation[:100] }}...
+    </div>
+    <div style="margin-top: 10px;">
+        {% if user_email %}
+            {% if not song.is_learned %}
+                <a href="/learn/{{ song.id }}" class="btn">✅ Отметить изученной</a>
+            {% else %}
+                <button class="btn" disabled>✅ Изучено</button>
+            {% endif %}
+        {% else %}
+            <button class="btn" disabled title="Войдите чтобы отмечать песни">✅ Изучено</button>
+        {% endif %}
+        <a href="/song/{{ song.id }}" class="btn">📖 Подробнее</a>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

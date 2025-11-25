@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}{{ song.title }} - LinguaTune{% endblock %}
+
+{% block content %}
+<h2>{{ song.title }}{% if song.is_learned %} ✅{% endif %}</h2>
+<p><strong>Исполнитель:</strong> {{ song.artist }}</p>
+<p><strong>Язык:</strong> 
+    {% if song.language == 'en' %}🇬🇧 Английский
+    {% elif song.language == 'es' %}🇪🇸 Испанский
+    {% elif song.language == 'fr' %}🇫🇷 Французский
+    {% elif song.language == 'de' %}🇩🇪 Немецкий
+    {% else %}{{ song.language }}{% endif %}
+</p>
+<p><strong>Уровень:</strong> 
+    {% if song.difficulty == 'beginner' %}Начальный
+    {% elif song.difficulty == 'intermediate' %}Средний
+    {% elif song.difficulty == 'advanced' %}Продвинутый
+    {% else %}{{ song.difficulty }}{% endif %}
+</p>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+    <div>
+        <h3>🎵 Оригинальный текст</h3>
+        <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; white-space: pre-line;">
+            {{ song.lyrics_original }}
+        </div>
+    </div>
+    <div>
+        <h3>📖 Перевод</h3>
+        <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; white-space: pre-line;">
+            {{ song.lyrics_translation }}
+        </div>
+    </div>
+</div>
+
+<div style="margin-top: 20px;">
+    <h3>📚 Словарь песни</h3>
+    <div>
+        {% for word in song.vocabulary %}
+        <span style="background: #e8f5e8; padding: 5px 10px; margin: 5px; border-radius: 15px; display: inline-block;">
+            {{ word }}
+        </span>
+        {% endfor %}
+    </div>
+</div>
+
+<div style="margin-top: 20px;">
+    {% if user_email %}
+        {% if not song.is_learned %}
+            <a href="/learn/{{ song.id }}" class="btn">✅ Отметить изученной</a>
+        {% else %}
+            <button class="btn" disabled>✅ Уже изучено</button>
+        {% endif %}
+    {% else %}
+        <button class="btn" disabled title="Войдите чтобы отмечать песни">✅ Отметить изученной</button>
+    {% endif %}
+    <a href="/songs" class="btn">← Назад к списку</a>
+</div>
+{% endblock %}

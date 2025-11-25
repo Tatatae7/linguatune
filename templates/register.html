@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Регистрация - LinguaTune{% endblock %}
+
+{% block content %}
+<h2>📝 Регистрация</h2>
+
+<div style="max-width: 400px; margin: 0 auto;">
+    <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 5px;">Email:</label>
+        <input type="email" id="email" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+    </div>
+    
+    <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 5px;">Пароль:</label>
+        <input type="password" id="password" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+    </div>
+    
+    <button onclick="register()" class="btn" style="width: 100%;">Зарегистрироваться</button>
+    
+    <div style="text-align: center; margin-top: 15px;">
+        <a href="/login">Уже есть аккаунт? Войдите</a>
+    </div>
+</div>
+
+<script>
+function register() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    if (!email || !password) {
+        alert('Заполните все поля');
+        return;
+    }
+    
+    window.location.href = `/auth/signup?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+}
+</script>
+{% endblock %}

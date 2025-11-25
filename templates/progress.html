@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Мой прогресс - LinguaTune{% endblock %}
+
+{% block content %}
+<h2>📊 Мой прогресс обучения</h2>
+
+<p>Добро пожаловать, <strong>{{ user_email }}</strong>!</p>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
+    <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; text-align: center;">
+        <h3>🎵 Изучено песен</h3>
+        <p style="font-size: 2em; font-weight: bold; margin: 10px 0;">{{ stats.songs_learned }}</p>
+        <p>из {{ total_songs }} доступных</p>
+        <div style="background: #ddd; height: 10px; border-radius: 5px; margin-top: 10px;">
+            <div style="background: #4CAF50; height: 100%; width: {{ stats.completion_percentage }}%; border-radius: 5px;"></div>
+        </div>
+        <small>{{ stats.completion_percentage }}% завершено</small>
+    </div>
+    
+    <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; text-align: center;">
+        <h3>📚 Выучено слов</h3>
+        <p style="font-size: 2em; font-weight: bold; margin: 10px 0;">{{ stats.words_learned }}</p>
+        <p>новых слов из песен</p>
+    </div>
+    
+    <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; text-align: center;">
+        <h3>🌍 Языки</h3>
+        <p style="font-size: 2em; font-weight: bold; margin: 10px 0;">{{ stats.languages_learned }}</p>
+        <p>изучено языков</p>
+    </div>
+</div>
+
+<div style="margin-top: 30px;">
+    <h3>🎵 Изученные песни</h3>
+    {% if learned_songs %}
+        {% for song in learned_songs %}
+        <div style="border: 1px solid #ddd; padding: 10px; margin: 5px 0; border-radius: 5px;">
+            <strong>{{ song.title }}</strong> - {{ song.artist }}
+            <span style="float: right; background: #4CAF50; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px;">
+                {% if song.language == 'en' %}🇬🇧 Английский
+                {% elif song.language == 'es' %}🇪🇸 Испанский
+                {% elif song.language == 'fr' %}🇫🇷 Французский
+                {% elif song.language == 'de' %}🇩🇪 Немецкий
+                {% else %}{{ song.language }}{% endif %}
+            </span>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>Вы еще не изучили ни одной песни. Начните с раздела "Все песни"!</p>
+    {% endif %}
+</div>
+
+<div style="margin-top: 30px; text-align: center;">
+    <a href="/songs" class="btn">🎵 Продолжить изучение</a>
+</div>
+{% endblock %}

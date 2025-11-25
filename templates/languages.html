@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Языки - LinguaTune{% endblock %}
+
+{% block content %}
+<h2>🌍 Языки для изучения</h2>
+
+{% for language in languages %}
+<div class="song-card">
+    <h3>{{ language.name }}</h3>
+    <p><strong>Код:</strong> {{ language.code }}</p>
+    <p><strong>Уровень сложности:</strong> 
+        {% if language.difficulty == 'beginner' %}Начальный
+        {% elif language.difficulty == 'intermediate' %}Средний
+        {% elif language.difficulty == 'advanced' %}Продвинутый
+        {% else %}{{ language.difficulty }}{% endif %}
+    </p>
+    <a href="/songs/{{ language.code }}" class="btn">🎵 Песни на этом языке</a>
+</div>
+{% endfor %}
+{% endblock %}

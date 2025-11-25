@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Главная - LinguaTune{% endblock %}
+
+{% block content %}
+<h2>Добро пожаловать в LinguaTune! 🎵</h2>
+<p>Изучайте языки через любимую музыку. Выбирайте песни, читайте тексты с переводами и улучшайте свои языковые навыки.</p>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px;">
+    <div style="background: #e8f5e8; padding: 20px; border-radius: 10px;">
+        <h3>🎶 Слушайте музыку</h3>
+        <p>Песни на разных языках с текстами и переводами</p>
+    </div>
+    <div style="background: #e8f5e8; padding: 20px; border-radius: 10px;">
+        <h3>🌍 Изучайте языки</h3>
+        <p>Английский, испанский, французский и другие</p>
+    </div>
+    <div style="background: #e8f5e8; padding: 20px; border-radius: 10px;">
+        <h3>📊 Следите за прогрессом</h3>
+        <p>Отмечайте изученные песни и слова</p>
+    </div>
+</div>
+
+<div style="margin-top: 30px; text-align: center;">
+    <a href="/songs" class="btn" style="display: inline-block;">Начать изучение</a>
+</div>
+{% endblock %}
