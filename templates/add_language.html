@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Добавить язык - Админ-панель{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 600px; margin: 0 auto; padding: 30px 20px;">
+    <h1 style="color: #2c3e50; margin-bottom: 30px; border-bottom: 2px solid #4a6ee0; padding-bottom: 15px;">
+        🌍 Добавить новый язык
+    </h1>
+    
+    {% if message %}
+    <div class="alert" style="padding: 15px; border-radius: 8px; margin-bottom: 25px;
+        {% if message_type == 'success' %}
+            background: #d4edda; color: #155724; border: 1px solid #c3e6cb;
+        {% else %}
+            background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;
+        {% endif %}">
+        {{ message }}
+    </div>
+    {% endif %}
+    
+    <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.08);">
+        <form action="/admin/language?admin_email={{ user_email }}" method="post">
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; color: #555; font-weight: bold;">
+                    Название языка:
+                </label>
+                <input type="text" name="name" required
+                       style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;"
+                       placeholder="Например: Китайский">
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; color: #555; font-weight: bold;">
+                    Код языка:
+                </label>
+                <input type="text" name="code" required maxlength="5"
+                       style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;"
+                       placeholder="Например: zh, fr, de">
+                <small style="color: #888;">2-5 символов (например: en, es, ru)</small>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; color: #555; font-weight: bold;">
+                    Сложность изучения:
+                </label>
+                <select name="difficulty" required
+                        style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                    <option value="beginner">Начинающий</option>
+                    <option value="intermediate" selected>Средний</option>
+                    <option value="advanced">Продвинутый</option>
+                </select>
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <label style="display: block; margin-bottom: 8px; color: #555; font-weight: bold;">
+                    Описание языка:
+                </label>
+                <textarea name="description" rows="4"
+                          style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;"
+                          placeholder="Краткое описание языка..."></textarea>
+            </div>
+            
+            <button type="submit"
+                    style="width: 100%; background: #4a6ee0; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold;">
+                Добавить язык
+            </button>
+        </form>
+        
+        <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 25px;">
+            <h4 style="color: #2c3e50; margin-bottom: 15px;">💡 Подсказка</h4>
+            <p style="color: #666; margin-bottom: 10px;">
+                <strong>API Endpoint:</strong> POST /admin/language?admin_email={{ user_email }}
+            </p>
+            <p style="color: #666;">
+                После добавления языка можно добавлять песни на этом языке.
+            </p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/admin" style="color: #4a6ee0; text-decoration: none; font-weight: bold; margin-right: 20px;">
+                ← Назад в админ-панель
+            </a>
+            <a href="/admin/manage-languages" style="color: #6c757d; text-decoration: none;">
+                Управление языками
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

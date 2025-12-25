@@ -1,28 +1,34 @@
-from pydantic import BaseModel
+from sqlmodel import SQLModel, Field, Column
 from typing import List, Optional
+from sqlalchemy import JSON
 
-class Song(BaseModel):
-    id: int
+class SongBase(SQLModel):
     title: str
     artist: str
     language: str
     lyrics_original: str
     lyrics_translation: str
     difficulty: str
-    vocabulary: List[str]
+    vocabulary: List[str] = []
     duration: int
+
+class Song(SongBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    title: str = Field(index=True)
+    artist: str = Field(index=True)
+    language: str = Field(index=True)
+    lyrics_original: str
+    lyrics_translation: str
+    difficulty: str = Field(default="intermediate")
+    
+    vocabulary: List[str] = Field(
+        default_factory=list,
+        sa_column=Column(JSON)
+    )
+    
+    duration: int = Field(default=180)
+    genre: Optional[str] = None
+    year: Optional[int] = None
     
     class Config:
-        json_schema_extra = {
-            "example": {
-                "id": 1,
-                "title": "Yesterday",
-                "artist": "The Beatles",
-                "language": "en",
-                "lyrics_original": "Yesterday, all my troubles seemed so far away...",
-                "lyrics_translation": "Вчера все мои проблемы казались такими далекими...",
-                "difficulty": "beginner",
-                "vocabulary": ["yesterday", "troubles", "far away", "believe"],
-                "duration": 125
-            }
-        }
+        arbitrary_types_allowed = True

@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Мой профиль - LinguaTune{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px; margin: 0 auto; padding: 30px 20px;">
+    <h1 style="color: #2c3e50; margin-bottom: 30px; border-bottom: 2px solid #4a6ee0; padding-bottom: 15px;">
+        👤 Мой профиль
+    </h1>
+    
+    {% if message %}
+    <div class="alert" style="padding: 15px; border-radius: 8px; margin-bottom: 25px;
+        {% if message_type == 'success' %}
+            background: #d4edda; color: #155724; border: 1px solid #c3e6cb;
+        {% elif message_type == 'error' %}
+            background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;
+        {% else %}
+            background: #e7f3fe; color: #31708f; border: 1px solid #b3d9ff;
+        {% endif %}">
+        {{ message }}
+    </div>
+    {% endif %}
+    
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 40px; margin-bottom: 40px;">
+        <!-- Левая колонка: Информация -->
+        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.08);">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #4a6ee0, #3a5ed0); 
+                            border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; 
+                            justify-content: center; font-size: 36px; color: white;">
+                    {{ user_email[0]|upper }}
+                </div>
+                <h2 style="margin-bottom: 5px; color: #2c3e50;">
+                    {{ user.full_name if user and user.full_name else 'Пользователь' }}
+                </h2>
+                <p style="color: #7f8c8d; margin-bottom: 10px;">{{ user_email }}</p>
+                {% if user and user.username %}
+                <p style="color: #4a6ee0; font-weight: 500;">@{{ user.username }}</p>
+                {% endif %}
+            </div>
+            
+            <div style="border-top: 1px solid #eee; padding-top: 20px;">
+                <h4 style="margin-bottom: 15px; color: #2c3e50;">📧 Контакт</h4>
+                <p style="color: #555; margin-bottom: 5px;">
+                    <strong>Email:</strong><br>
+                    {{ user_email }}
+                </p>
+                
+                <h4 style="margin-top: 25px; margin-bottom: 15px; color: #2c3e50;">🌍 Изучаемый язык</h4>
+                <p style="color: #555;">
+                    {{ user.current_language if user and user.current_language else 'Английский' }}
+                </p>
+                
+                <h4 style="margin-top: 25px; margin-bottom: 15px; color: #2c3e50;">📅 Регистрация</h4>
+                <p style="color: #555;">
+                    {{ user.registration_date.strftime('%d.%m.%Y') if user and user.registration_date else 'Недавно' }}
+                </p>
+            </div>
+        </div>
+        
+        <!-- Правая колонка: Редактирование -->
+        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.08);">
+            <h3 style="color: #2c3e50; margin-bottom: 25px;">✏️ Редактировать профиль</h3>
+            
+            <form action="/profile/update" method="post" style="display: flex; flex-direction: column; gap: 20px;">
+                <div>
+                    <label style="display: block; margin-bottom: 8px; color: #555; font-weight: bold;">
+                        Полное имя:
+                    </label>
+                    <input type="text" 
+                           name="full_name" 
+                           value="{{ user.full_name if user and user.full_name else '' }}"
+                           style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;"
+                           placeholder="Введите ваше имя">
+                </div>
+                
+                <div>
+                    <label style="display: block; margin-bottom: 8px; color: #555; font-weight: bold;">
+                        Имя пользователя:
+                    </label>
+                    <input type="text" 
+                           name="username" 
+                           value="{{ user.username if user and user.username else user_email.split('@')[0] }}"
+                           style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;"
+                           placeholder="Ваш никнейм">
+                </div>
+                
+                <div>
+                    <label style="display: block; margin-bottom: 8px; color: #555; font-weight: bold;">
+                        Изучаемый язык:
+                    </label>
+                    <select name="current_language" 
+                            style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                        <option value="Английский" {% if user and user.current_language == 'Английский' %}selected{% endif %}>
+                            Английский
+                        </option>
+                        <option value="Испанский" {% if user and user.current_language == 'Испанский' %}selected{% endif %}>
+                            Испанский
+                        </option>
+                        <option value="Французский" {% if user and user.current_language == 'Французский' %}selected{% endif %}>
+                            Французский
+                        </option>
+                        <option value="Немецкий" {% if user and user.current_language == 'Немецкий' %}selected{% endif %}>
+                            Немецкий
+                        </option>
+                        <option value="Итальянский" {% if user and user.current_language == 'Итальянский' %}selected{% endif %}>
+                            Итальянский
+                        </option>
+                    </select>
+                </div>
+                
+                <button type="submit" 
+                        style="background: #4a6ee0; color: white; border: none; padding: 15px; 
+                               border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; 
+                               transition: background 0.3s; margin-top: 10px;">
+                    💾 Сохранить изменения
+                </button>
+            </form>
+            
+            <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 25px;">
+                <h4 style="color: #2c3e50; margin-bottom: 15px;">🔐 Безопасность</h4>
+                <a href="/change-password" 
+                   style="display: inline-block; background: #f8f9fa; color: #4a6ee0; padding: 12px 25px; 
+                          border-radius: 8px; text-decoration: none; border: 2px solid #eaeaea; font-weight: bold;">
+                    Сменить пароль
+                </a>
+            </div>
+            
+            <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+                <h4 style="color: #2c3e50; margin-bottom: 10px;">📊 Статистика</h4>
+                <p style="color: #555; margin-bottom: 5px;">
+                    <a href="/progress" style="color: #4a6ee0; text-decoration: none; font-weight: 500;">
+                        Посмотреть мой прогресс обучения →
+                    </a>
+                </p>
+                <p style="color: #555; margin-bottom: 5px;">
+                    <a href="/songs" style="color: #4a6ee0; text-decoration: none; font-weight: 500;">
+                        Просмотреть все песни →
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="/" style="color: #4a6ee0; text-decoration: none; font-weight: bold;">
+            ← На главную
+        </a>
+    </div>
+</div>
+
+<style>
+.alert {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+input:focus, select:focus {
+    border-color: #4a6ee0 !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(74, 110, 224, 0.1);
+}
+
+button:hover {
+    background: #3a5ed0 !important;
+}
+
+a:hover {
+    opacity: 0.8;
+}
+</style>
+{% endblock %}

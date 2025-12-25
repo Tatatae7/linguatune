@@ -1,33 +1,41 @@
-from pydantic import BaseModel, EmailStr
-from typing import List, Optional
-from models.songs import Song
+from sqlmodel import SQLModel, Field, Column
+from typing import Optional, List
+from sqlalchemy import JSON
+from pydantic import BaseModel
 
-class User(BaseModel):
-    email: EmailStr
+# ========== МОДЕЛЬ ДЛЯ БАЗЫ ДАННЫХ ==========
+class User(SQLModel, table=True):
+    """Модель пользователя для базы данных"""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    email: str = Field(index=True, unique=True)
     password: str
-    learned_songs: List[int] = []
-    favorite_songs: List[int] = []
+    full_name: Optional[str] = None
+    username: Optional[str] = None
     current_language: Optional[str] = None
     
+    # ВАЖНО: Указываем sa_column с JSON для SQLite
+    learned_songs: List[int] = Field(
+        default_factory=list,
+        sa_column=Column(JSON)
+    )
+
+
     class Config:
-        json_schema_extra = {
-            "example": {
-                "email": "student@example.com",
-                "password": "securepassword123",
-                "learned_songs": [1, 2],
-                "favorite_songs": [1],
-                "current_language": "en"
-            }
-        }
+        arbitrary_types_allowed = True
+
+# ========== МОДЕЛИ ДЛЯ ЗАПРОСОВ ==========
+class UserCreate(BaseModel):
+    """Модель для регистрации (только email и пароль)"""
+    email: str
+    password: str
 
 class UserSignIn(BaseModel):
-    email: EmailStr
+    """Модель для входа"""
+    email: str
     password: str
-    
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "email": "student@example.com",
-                "password": "securepassword123"
-            }
-        }
+
+class UserUpdate(BaseModel):
+    """Модель для обновления профиля"""
+    full_name: Optional[str] = None
+    username: Optional[str] = None
+    current_language: Optional[str] = None

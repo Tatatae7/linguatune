@@ -1,18 +1,14 @@
-from pydantic import BaseModel
-from typing import List, Optional
+from sqlmodel import SQLModel, Field
+from typing import Optional
 
-class Language(BaseModel):
-    id: int
+class LanguageBase(SQLModel):
     name: str
     code: str
     difficulty: str
-    
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "id": 1,
-                "name": "Английский",
-                "code": "en", 
-                "difficulty": "beginner"
-            }
-        }
+
+class Language(LanguageBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(unique=True, index=True)
+    code: str = Field(unique=True, index=True)
+    difficulty: str = Field(default="beginner")
+    description: Optional[str] = None

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Админ-панель - LinguaTune{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1200px; margin: 0 auto; padding: 30px 20px;">
+    <h1 style="color: #2c3e50; margin-bottom: 30px; border-bottom: 2px solid #4a6ee0; padding-bottom: 15px;">
+        🛠️ Админ-панель LinguaTune
+    </h1>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-bottom: 40px;">
+        <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); text-align: center;">
+            <div style="font-size: 48px; margin-bottom: 15px;">🎵</div>
+            <h3 style="color: #2c3e50; margin-bottom: 15px;">Управление песнями</h3>
+            <p style="color: #666; margin-bottom: 20px;">Добавляйте, редактируйте и удаляйте песни</p>
+            <a href="/admin/add-song" style="display: inline-block; background: #4a6ee0; color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; margin: 5px;">
+                Добавить песню
+            </a>
+            <a href="/admin/manage-songs" style="display: inline-block; background: #6c757d; color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; margin: 5px;">
+                Управление песнями
+            </a>
+        </div>
+        
+        <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); text-align: center;">
+            <div style="font-size: 48px; margin-bottom: 15px;">🌍</div>
+            <h3 style="color: #2c3e50; margin-bottom: 15px;">Управление языками</h3>
+            <p style="color: #666; margin-bottom: 20px;">Добавляйте и удаляйте языки</p>
+            <a href="/admin/add-language" style="display: inline-block; background: #4a6ee0; color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; margin: 5px;">
+                Добавить язык
+            </a>
+            <a href="/admin/manage-languages" style="display: inline-block; background: #6c757d; color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; margin: 5px;">
+                Управление языками
+            </a>
+        </div>
+        
+        <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); text-align: center;">
+            <div style="font-size: 48px; margin-bottom: 15px;">👥</div>
+            <h3 style="color: #2c3e50; margin-bottom: 15px;">Управление пользователями</h3>
+            <p style="color: #666; margin-bottom: 20px;">Просматривайте и управляйте пользователями</p>
+            <a href="/admin/manage-users" style="display: inline-block; background: #4a6ee0; color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; margin: 5px;">
+                Управление пользователями
+            </a>
+        </div>
+    </div>
+    
+    <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); margin-bottom: 30px;">
+        <h3 style="color: #2c3e50; margin-bottom: 20px;">📊 Быстрая статистика</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: center;">
+            <div>
+                <div style="font-size: 32px; color: #4a6ee0; font-weight: bold;">{{ stats.total_users|default(0) }}</div>
+                <div style="color: #666;">Пользователей</div>
+            </div>
+            <div>
+                <div style="font-size: 32px; color: #4a6ee0; font-weight: bold;">{{ stats.total_songs|default(0) }}</div>
+                <div style="color: #666;">Песен</div>
+            </div>
+            <div>
+                <div style="font-size: 32px; color: #4a6ee0; font-weight: bold;">{{ stats.total_languages|default(0) }}</div>
+                <div style="color: #666;">Языков</div>
+            </div>
+            <div>
+                <div style="font-size: 32px; color: #4a6ee0; font-weight: bold;">{{ stats.active_users|default(0) }}</div>
+                <div style="color: #666;">Активных пользователей</div>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 25px;">
+            <a href="/admin/stats" style="color: #4a6ee0; text-decoration: none; font-weight: 500;">
+                Подробная статистика →
+            </a>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="/" style="color: #4a6ee0; text-decoration: none; font-weight: bold; margin-right: 20px;">
+            ← На главную
+        </a>
+        <a href="/api/docs" target="_blank" style="color: #28a745; text-decoration: none; font-weight: bold;">
+            📚 API Документация
+        </a>
+    </div>
+</div>
+{% endblock %}

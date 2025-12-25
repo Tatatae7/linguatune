@@ -1,140 +1,186 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from fastapi.responses import HTMLResponse
+from sqlmodel import Session, select
+from database.connection import get_session
+import models
 from models.songs import Song
 from models.artists import Artist
+from models.languages import Language
+from typing import List
 
 music_router = APIRouter(
     tags=["Музыка"],
     responses={404: {"description": "Не найдено"}}
 )
 
-artists_data = [
-    Artist(
-        id=1,
-        name="The Beatles",
-        country="Великобритания",
-        language="en",
-        genres=["rock", "pop"],
-        bio="Легендарная британская рок-группа"
-    ),
-    Artist(
-        id=2,
-        name="BTS",
-        country="Южная Корея", 
-        language="ko",
-        genres=["k-pop", "pop"],
-        bio="Южнокорейский бой-бэнд"
-    ),
-    Artist(
-        id=3,
-        name="Kate Ryan",
-        country="Бельгия",
-        language="fr",
-        genres=["pop", "dance"],
-        bio="Бельгийская певица"
-    ),
-    Artist(
-        id=4,
-        name="Édith Piaf",
-        country="Франция",
-        language="fr", 
-        genres=["chanson", "traditional"],
-        bio="Знаменитая французская певица"
-    ),
-    Artist(
-        id=5,
-        name="Imagine Dragons",
-        country="США",
-        language="en",
-        genres=["rock", "pop"],
-        bio="Американская поп-рок группа"
-    )
-]
-
-songs_data = [
-    Song(
-        id=1,
-        title="Yesterday",
-        artist="The Beatles",
-        language="en",
-        lyrics_original="Yesterday, all my troubles seemed so far away\nNow it looks as though they're here to stay\nOh, I believe in yesterday",
-        lyrics_translation="Вчера все мои проблемы казались такими далекими\nТеперь похоже, что они останутся здесь\nО, я верю во вчера",
-        difficulty="beginner",
-        vocabulary=["yesterday", "troubles", "far away", "believe", "stay"],
-        duration=125
-    ),
-    Song(
-        id=2,
-        title="Spring Day",
-        artist="BTS", 
-        language="ko",
-        lyrics_original="보고 싶다\n이렇게 말하니까 더 보고 싶다\n너희 사진을 보고 있어도\n보고 싶다",
-        lyrics_translation="Скучаю по вам\nКогда говорю это, скучаю еще больше\nДаже глядя на ваше фото\nСкучаю по вам",
-        difficulty="intermediate",
-        vocabulary=["보고 싶다", "말하니까", "사진", "봄", "눈", "친구"],
-        duration=265
-    ),
-    Song(
-        id=3,
-        title="Voyage voyage",
-        artist="Kate Ryan", 
-        language="fr",
-        lyrics_original="Voyage, voyage\nPlus loin que la nuit et le jour\nVoyage, voyage\nDans l'espace inouï de l'amour",
-        lyrics_translation="Путешествуй, путешествуй\nДальше, чем ночь и день\nПутешествуй, путешествуй\nВ невероятное пространство любви",
-        difficulty="intermediate",
-        vocabulary=["voyage", "nuit", "jour", "espace", "inouï", "amour", "rêve"],
-        duration=235
-    ),
-    Song(
-        id=4,
-        title="Non, je ne regrette rien",
-        artist="Édith Piaf", 
-        language="fr",
-        lyrics_original="Non, je ne regrette rien\nNi le bien qu'on m'a fait\nNi le mal, tout ça m'est bien égal\nNon, rien de rien, non, je ne regrette rien",
-        lyrics_translation="Нет, я ни о чем не сожалею\nНи о хорошем, что мне сделали\nНи о плохом, мне все совершенно безразлично\nНет, ни о чем, нет, я ни о чем не сожалею",
-        difficulty="intermediate",
-        vocabulary=["non", "regrette", "rien", "bien", "mal", "égal", "cœur", "amour", "larmes"],
-        duration=142
-    ),
-    Song(
-        id=5,
-        title="Human",
-        artist="Imagine Dragons",
-        language="en",
-        lyrics_original="I'm only human, I make mistakes\nI'm only human, that's all it takes\nTo put the blame in the right place",
-        lyrics_translation="Я всего лишь человек, я совершаю ошибки\nЯ всего лишь человек, это все, что нужно\nЧтобы возложить вину на нужное место",
-        difficulty="beginner",
-        vocabulary=["human", "mistakes", "blame", "right place", "broken"],
-        duration=245
-    ),
-    Song(
-        id=6,
-        title="Life Goes On",
-        artist="BTS",
-        language="en",
-        lyrics_original="Life goes on like an echo in the forest\nLife goes on like the breeze in the meadow\nDoes life go on? Yeah, life goes on",
-        lyrics_translation="Жизнь продолжается, как эхо в лесу\nЖизнь продолжается, как ветерок на лугу\nЖизнь продолжается? Да, жизнь продолжается",
-        difficulty="beginner", 
-        vocabulary=["life", "goes on", "echo", "forest", "breeze", "meadow"],
-        duration=213
-    )
-]
-
 @music_router.get("/songs")
-async def get_all_songs():
-    return songs_data
+async def get_all_songs(session: Session = Depends(get_session)):
+    """Получить все песни"""
+    songs = session.exec(select(Song)).all()
+    return songs
 
 @music_router.get("/songs/{language}")
-async def get_songs_by_language(language: str):
-    filtered_songs = [song for song in songs_data if song.language == language]
+async def get_songs_by_language(
+    language: str,
+    session: Session = Depends(get_session)
+):
+    """Получить песни по языку"""
+    
+    songs = session.exec(
+        select(Song).where(Song.language.ilike(f"%{language}%"))
+    ).all()
+    
+    if not songs:
+        # Получаем все доступные языки
+        all_songs = session.exec(select(Song)).all()
+        available_languages = set(song.language for song in all_songs)
+        
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": f"Песни на языке '{language}' не найдены",
+                "available_languages": list(available_languages)
+            }
+        )
+    
+    return songs
+@music_router.post("/song")
+async def create_song(
+    song: Song,
+    session: Session = Depends(get_session)
+):
+    """Создать новую песню"""
+    
+    # Проверяем, не существует ли уже песня с таким названием и исполнителем
+    existing = session.exec(
+        select(Song).where(
+            (Song.title == song.title) & 
+            (Song.artist == song.artist)
+        )
+    ).first()
+    
+    if existing:
+        raise HTTPException(
+            status_code=400,
+            detail="Песня с таким названием и исполнителем уже существует"
+        )
+    
+    session.add(song)
+    session.commit()
+    session.refresh(song)
+    
+    return {
+        "message": "Песня успешно создана",
+        "song": song
+    }
+
+@music_router.put("/song/{song_id}")
+async def update_song(
+    song_id: int,
+    song_update: Song,
+    session: Session = Depends(get_session)
+):
+    """Обновить песню"""
+    
+    song = session.get(Song, song_id)
+    if not song:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Песня с ID {song_id} не найдена"
+        )
+    
+    # Обновляем поля
+    update_data = song_update.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(song, field, value)
+    
+    session.add(song)
+    session.commit()
+    session.refresh(song)
+    
+    return {
+        "message": "Песня успешно обновлена",
+        "song": song
+    }
+
+@music_router.delete("/song/{song_id}")
+async def delete_song(
+    song_id: int,
+    session: Session = Depends(get_session)
+):
+    """Удалить песню"""
+    
+    song = session.get(Song, song_id)
+    if not song:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Песня с ID {song_id} не найдена"
+        )
+    
+    # Удаляем песню из избранного у всех пользователей
+    from models.users import User
+    users = session.exec(select(User)).all()
+    for user in users:
+        if song_id in (user.favorite_songs or []):
+            user.favorite_songs.remove(song_id)
+        if song_id in (user.learned_songs or []):
+            user.learned_songs.remove(song_id)
+        session.add(user)
+    
+    session.delete(song)
+    session.commit()
+    
+    return {
+        "message": f"Песня '{song.title}' успешно удалена"
+    }
+@music_router.get("/songs/{language}")
+async def get_songs_by_language(
+    language: str,
+    session: Session = Depends(get_session)
+):
+    """Получить песни по языку"""
+    
+    print(f"🔍 Поиск песен на языке: '{language}'")
+    
+    # Получаем все песни
+    all_songs = session.exec(select(Song)).all()
+    print(f"Всего песен в базе: {len(all_songs)}")
+    
+    # Фильтруем песни по языку
+    # Приводим к нижнему регистру для case-insensitive поиска
+    language_lower = language.strip().lower()
+    
+    filtered_songs = []
+    for song in all_songs:
+        if song.language and song.language.lower() == language_lower:
+            filtered_songs.append(song)
+        # Также проверяем по коду языка (если нужно)
+        elif song.language and song.language.lower().startswith(language_lower):
+            filtered_songs.append(song)
+    
+    print(f"Найдено песен: {len(filtered_songs)}")
+    
+    if not filtered_songs:
+        # Получаем уникальные языки из всех песен
+        unique_languages = set()
+        for song in all_songs:
+            if song.language:
+                unique_languages.add(song.language.lower())
+        
+        print(f"Доступные языки: {sorted(unique_languages)}")
+        
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": f"Песни на языке '{language}' не найдены",
+                "available_languages": sorted(list(unique_languages)),
+                "total_songs": len(all_songs)
+            }
+        )
+    
     return filtered_songs
-
-@music_router.get("/song/{song_id}")
-async def get_song_by_id(song_id: int):
-    for song in songs_data:
-        if song.id == song_id:
-            return song
-    raise HTTPException(status_code=404, detail="Песня не найдена")
-
 @music_router.get("/artists")
-async def get_all_artists():
-    return artists_data
+async def get_all_artists(session: Session = Depends(get_session)):
+    """Получить всех исполнителей"""
+    artists = session.exec(select(Artist)).all()
+    return artists

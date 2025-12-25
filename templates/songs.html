@@ -5,11 +5,17 @@
 {% block content %}
 <h2>🎶 Все песни для изучения</h2>
 
+{% if not user_email %}
+<div class="alert alert-warning">
+    ⚠️ Войдите в систему, чтобы отмечать песни как изученные
+</div>
+{% endif %}
+
 {% for song in songs %}
-<div class="song-card" {% if song.is_learned %}style="background: #e8f5e8;"{% endif %}>
+<div class="song-card" id="song-{{ song.id }}" {% if song.id in learned_song_ids %}style="background: #e8f5e8;"{% endif %}>
     <div class="song-title">
         {{ song.title }}
-        {% if song.is_learned %} ✅{% endif %}
+        {% if song.id in learned_song_ids %} ✅{% endif %}
     </div>
     <div class="song-artist">Исполнитель: {{ song.artist }}</div>
     <div>
@@ -38,10 +44,10 @@
     </div>
     <div style="margin-top: 10px;">
         {% if user_email %}
-            {% if not song.is_learned %}
-                <a href="/learn/{{ song.id }}" class="btn">✅ Отметить изученной</a>
+            {% if song.id not in learned_song_ids %}
+                <button onclick="markAsLearned({{ song.id }})" class="btn">✅ Отметить изученной</button>
             {% else %}
-                <button class="btn" disabled>✅ Изучено</button>
+                <button onclick="unmarkAsLearned({{ song.id }})" class="btn btn-danger">❌ Убрать отметку</button>
             {% endif %}
         {% else %}
             <button class="btn" disabled title="Войдите чтобы отмечать песни">✅ Изучено</button>
@@ -50,4 +56,76 @@
     </div>
 </div>
 {% endfor %}
+
+{% if user_email %}
+<script>
+// Функция для отметки песни как изученной
+async function markAsLearned(songId) {
+    try {
+        const response = await fetch(`/progress/user/{{ user_email }}/learned/${songId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            // Обновляем внешний вид карточки
+            const songCard = document.getElementById(`song-${songId}`);
+            songCard.style.background = '#e8f5e8';
+            
+            // Меняем кнопку
+            const button = songCard.querySelector('button');
+            button.textContent = '❌ Убрать отметку';
+            button.className = 'btn btn-danger';
+            button.onclick = () => unmarkAsLearned(songId);
+            
+            alert(result.message || 'Песня отмечена как изученная!');
+        } else {
+            alert(`Ошибка: ${result.detail || 'Неизвестная ошибка'}`);
+        }
+    } catch (error) {
+        alert('Ошибка сети: ' + error.message);
+    }
+}
+
+// Функция для убирания отметки
+async function unmarkAsLearned(songId) {
+    if (!confirm('Убрать песню из изученных?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/progress/user/{{ user_email }}/learned/${songId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            // Обновляем внешний вид карточки
+            const songCard = document.getElementById(`song-${songId}`);
+            songCard.style.background = '';
+            
+            // Меняем кнопку
+            const button = songCard.querySelector('button');
+            button.textContent = '✅ Отметить изученной';
+            button.className = 'btn';
+            button.onclick = () => markAsLearned(songId);
+            
+            alert(result.message || 'Песня убрана из изученных!');
+        } else {
+            alert(`Ошибка: ${result.detail || 'Неизвестная ошибка'}`);
+        }
+    } catch (error) {
+        alert('Ошибка сети: ' + error.message);
+    }
+}
+</script>
+{% endif %}
 {% endblock %}
